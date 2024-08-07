@@ -7,4 +7,3 @@ node_modules/
 enterprise-playwright-automation-framework/
 /trash/
 *.nnb
-.env
