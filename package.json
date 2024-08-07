@@ -1,0 +1,32 @@
+{
+  "name": "100pay_test",
+  "version": "1.0.0",
+  "description": "Functional testing on 100pay",
+  "main": "index.js",
+  "scripts": {
+    "all-headed-chromium": "npx playwright test --project chromium",
+    "all-headed-firefox": "npx playwright test --project firefox",
+    "all-headed-safari": "npx playwright test --project webkit",
+    "all-headless": "npx playwright test --headless",
+    "positive-tests-chromium": "npx playwright test --project chromium --grep @POS",
+    "negative-tests-chromium": "npx playwright test --project chromium --grep @NEG"
+  },
+  "keywords": [],
+  "author": "Elvis Gideon",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.8.0",
+    "@faker-js/faker": "^8.4.1",
+    "@playwright/test": "^1.45.1",
+    "@types/node": "^20.14.10",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
+    "js-generate-password": "^1.0.0",
+    "mailslurp-client": "^15.20.2",
+    "playwright": "^1.45.1",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "eslint": "^9.7.0"
+  }
+}
