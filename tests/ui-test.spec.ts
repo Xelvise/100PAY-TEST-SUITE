@@ -3,8 +3,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { test, expect} from '../ui-auth-fixtures';
-import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../utils';
+import { test, expect } from '../src/ui-auth-fixtures';
+import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../src/utils';
 import { faker } from '@faker-js/faker';
 
 const folderPath = path.join(__dirname, 'tests', 'ui-test.spec.ts-snapshots');
@@ -276,11 +276,11 @@ test('@POS - Verify that User can switch between Light and Dark themes', async (
     // await homepage.SwitchTheme('Dark Mode');
     await homepage.crescentIcon.click();
     await homepage.page.waitForLoadState('domcontentloaded');
-    expect(await homepage.navbar.screenshot()).not.toMatchSnapshot('light-theme.png');
+    expect.soft(await homepage.navbar.screenshot()).not.toMatchSnapshot('light-theme.png');
     // switch to Light theme
     // await homepage.SwitchTheme('Light Mode');
     await homepage.crescentIcon.click();
     await homepage.page.waitForLoadState('domcontentloaded');
     await homepage.page.waitForTimeout(1500);
-    expect(await homepage.navbar.screenshot()).toMatchSnapshot('light-theme.png');
+    expect.soft(await homepage.navbar.screenshot()).toMatchSnapshot('light-theme.png');
 });
