@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ main, master ]
 jobs:
-  test:
+  E2E-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -16,11 +16,13 @@ jobs:
       with:
         node-version: 18
     - name: Install dependencies
-      run: npm ci
+      run: npm install
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
+    - name: Run Playwright tests on Chrome
+      run: npx playwright test --project chromium
+    - name: Run Playwright tests on FireFox
+      run: npx playwright test --project firefox
     - uses: actions/upload-artifact@v3
       if: always()
       with:

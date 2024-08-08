@@ -38,6 +38,7 @@ export default defineConfig({
     // baseURL: process.env.URL,
     ignoreHTTPSErrors: true,
     headless: true,
+    channel: "chrome",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
     permissions: ["clipboard-read"],

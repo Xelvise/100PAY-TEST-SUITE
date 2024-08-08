@@ -1,60 +1,60 @@
 // test function was extended to include custom fixtures and a storage state for each worker. 
 // The storage state ensures the browser context of each & every worker is populated with an already authenticated session state 
 
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { test, expect } from '../src/ui-auth-fixtures';
 import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../src/utils';
 import { faker } from '@faker-js/faker';
 
 const folderPath = path.join(__dirname, 'tests', 'ui-test.spec.ts-snapshots');
-const url = 'https://dashboard.100pay.co', clientName = faker.person.fullName(), clientID = faker.string.numeric(6), clientMobile = '080'+faker.string.numeric(8), clientMail = faker.internet.email({provider: 'gmail.com'}), Description = faker.finance.transactionType(), Amount = faker.number.int({min: 500, max: 10000});
+const url = 'https://dashboard.100pay.co';
 test.describe.configure({ retries: 1 });
 
-test('@POS - Verify that invoice description is half populated with User entries, prior to saving', async ({InvoicePage}) => {
+test('@POS - Verify that invoice description is half populated with User entries, prior to saving', async ({testData, InvoicePage}) => {
     // navigate to create invoice page
     await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
     await InvoicePage.switchToCreateInvoice();
     // fill in Client's details
-    await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+    await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
     await InvoicePage.SaveAndContinueBtn.click();
     await InvoicePage.page.waitForLoadState('domcontentloaded')
     // verify that saved details of client are visible on the page
-    const status = await InvoicePage.verifyInvoiceDetailsVisibility(clientName, clientID, clientMail, clientMobile);
+    const status = await InvoicePage.verifyInvoiceDetailsVisibility(testData.clientName, testData.clientID, testData.clientMail, testData.clientMobile);
     expect.soft(status).toBeTruthy();
 });
 
 
-test('@POS - Verify that Customer data, when saved, is visible and accessible from Dropdown menu', async ({InvoicePage}) => {
+test('@POS - Verify that Customer data, when saved, is visible and accessible from Dropdown menu', async ({testData, InvoicePage}) => {
     // navigate to create invoice page
     await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
     await InvoicePage.switchToCreateInvoice();
     // fill in Client's details
-    await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+    await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
     await InvoicePage.SaveAndContinueBtn.click();
     await InvoicePage.page.waitForLoadState('networkidle');
     await expect(async () => {
         await InvoicePage.page.reload({waitUntil: 'domcontentloaded'});
         // verify that saved client details are accessible from the dropdown menu
-        expect(await InvoicePage.isClientNameFound(clientName)).toBeTruthy();
+        expect(await InvoicePage.isClientNameFound(testData.clientName)).toBeTruthy();
     }).toPass({intervals: [1_500, 2_000, 2_000, 2_000], timeout: 10000});
-    await InvoicePage.page.getByText(clientName).first().click();
+    await InvoicePage.page.getByText(testData.clientName).first().click();
     // verify that saved details of client are visible on the page
-    const status = await InvoicePage.verifyInvoiceDetailsVisibility(clientName, clientID, clientMail, clientMobile);
+    const status = await InvoicePage.verifyInvoiceDetailsVisibility(testData.clientName, testData.clientID, testData.clientMail, testData.clientMobile);
     expect(status).toBeTruthy();
 });
 
 
-test('@POS - Verify that Invoice details, when completely filled, are sent showing a successful alert', async ({InvoicePage}) => {
+test('@POS - Verify that Invoice details, when completely filled, are sent showing a successful alert', async ({testData, InvoicePage}) => {
     // navigate to create invoice page
     await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
     await InvoicePage.switchToCreateInvoice();
     // fill in Client's details
-    await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+    await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
     await InvoicePage.SaveAndContinueBtn.click();
     await InvoicePage.page.waitForLoadState('domcontentloaded');
     // fill in Invoice details
-    await InvoicePage.fillInInvoiceData(Amount, 'United States', 'USD', 10, Description, 'https://pay.100pay.co');
+    await InvoicePage.fillInInvoiceData(testData.Amount, 'United States', 'USD', 10, testData.Description, 'https://pay.100pay.co');
     const networkResponse = InvoicePage.page.waitForResponse(response => response.url() === 'https://api.100pay.co/api/v1/pay/user/charge' && response.request().method() === 'POST');
     await InvoicePage.SendInvoiceBtn.click();
     await networkResponse;
@@ -64,16 +64,16 @@ test('@POS - Verify that Invoice details, when completely filled, are sent showi
 });
 
 
-test('@NEG - Verify that Invoice details, without a ThankYouPage URL, are not sent but indicates an error message', async ({InvoicePage}) => {
+test('@NEG - Verify that Invoice details, without a ThankYouPage URL, are not sent but indicates an error message', async ({testData, InvoicePage}) => {
     // navigate to create invoice page
     await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
     await InvoicePage.switchToCreateInvoice();
     // fill in Client's details
-    await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+    await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
     await InvoicePage.SaveAndContinueBtn.click();
     await InvoicePage.page.waitForLoadState('domcontentloaded');
     // fill in Invoice details
-    await InvoicePage.fillInInvoiceData(Amount, 'United States', 'USD', 10, Description, '');
+    await InvoicePage.fillInInvoiceData(testData.Amount, 'United States', 'USD', 10, testData.Description, '');
     const networkResponse = InvoicePage.page.waitForResponse(response => response.url() === 'https://api.100pay.co/api/v1/pay/user/charge' && response.request().method() === 'POST');
     await InvoicePage.SendInvoiceBtn.click();
     await networkResponse;
@@ -87,7 +87,7 @@ test.describe.skip(() => {
     test.describe.configure({ mode: 'serial' });
     let invoiceURL: string, businessName: string;
 
-    test('@POS - Verify that successfully sent Invoice gets delivered to Customer\'s pre-set email address', async ({InvoicePage}) => {
+    test('@POS - Verify that successfully sent Invoice gets delivered to Customer\'s pre-set email address', async ({testData, InvoicePage}) => {
         test.setTimeout(2.5*60*1000);
         const inbox = await mailslurp.inboxController.createInboxWithDefaults();
         // navigate to create invoice page
@@ -95,11 +95,11 @@ test.describe.skip(() => {
         await InvoicePage.switchToCreateInvoice();
         businessName = await InvoicePage.grabBusinessName();
         // fill in Client's details
-        await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+        await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
         await InvoicePage.SaveAndContinueBtn.click();
         await InvoicePage.page.waitForLoadState('domcontentloaded');
         // fill in Invoice details
-        await InvoicePage.fillInInvoiceData(Amount, 'United States', 'USD', 10, Description, 'https://pay.100pay.co');
+        await InvoicePage.fillInInvoiceData(testData.Amount, 'United States', 'USD', 10, testData.Description, 'https://pay.100pay.co');
         const networkResponse = InvoicePage.page.waitForResponse(response => response.url() === 'https://api.100pay.co/api/v1/pay/user/charge' && response.request().method() === 'POST');
         await InvoicePage.SendInvoiceBtn.click();
         const response = await networkResponse;
@@ -117,16 +117,16 @@ test.describe.skip(() => {
     });
 });
 
-test('@POS - Verify that successfully sent Invoice is accurately shown on Transaction history and tagged "unpaid"', async ({InvoicePage, transactionPage}) => {
+test('@POS - Verify that successfully sent Invoice is accurately shown on Transaction history and tagged "unpaid"', async ({testData, InvoicePage, transactionPage}) => {
     // navigate to create invoice page
     await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
     await InvoicePage.switchToCreateInvoice();
     // fill in Client's details
-    await InvoicePage.fillInClientDetails(clientName, clientMail, clientMobile, clientID);
+    await InvoicePage.fillInClientDetails(testData.clientName, testData.clientMail, testData.clientMobile, testData.clientID);
     await InvoicePage.SaveAndContinueBtn.click();
     await InvoicePage.page.waitForLoadState('domcontentloaded');
     // fill in Invoice details
-    await InvoicePage.fillInInvoiceData(Amount, 'United States', 'USD', 10, Description, 'https://pay.100pay.co');
+    await InvoicePage.fillInInvoiceData(testData.Amount, 'United States', 'USD', 10, testData.Description, 'https://pay.100pay.co');
     const networkResponse = InvoicePage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/pay/user/charge' && response.request().method()==='POST');
     await InvoicePage.SendInvoiceBtn.click();
     const response = await networkResponse;
@@ -137,9 +137,9 @@ test('@POS - Verify that successfully sent Invoice is accurately shown on Transa
     await transactionPage.page.waitForLoadState('domcontentloaded');
     // await transactionPage.page.pause();
     await expect(transactionPage.TrxRows.first()).toBeVisible({timeout: 10000});
-    const {name, amount, date, status} = await transactionPage.ViewTrxReceipt(clientName, Amount);
-    expect.soft(name).toBe(clientName);
-    expect.soft(amount).toBe(transactionPage.formatAmt(Amount));
+    const {name, amount, date, status} = await transactionPage.ViewTrxReceipt(testData.clientName, testData.Amount);
+    expect.soft(name).toBe(testData.clientName);
+    expect.soft(amount).toBe(transactionPage.formatAmt(testData.Amount));
     expect.soft(date).toBe(CurrentDate());
     expect.soft(status).toBe('UNPAID');
 });
@@ -149,14 +149,14 @@ test.describe(() => {
     test.describe.configure({ mode: 'serial' });
     let link: string, clippedLink: unknown, businessName: string;
 
-    test('@POS - Verify that new Payment links can be generated and copied successfully, given the required details', async ({paymentLinksPage}) => {
+    test('@POS - Verify that new Payment links can be generated and copied successfully, given the required details', async ({testData, paymentLinksPage}) => {
         await paymentLinksPage.page.goto(url, {waitUntil: 'domcontentloaded'});
         // navigate to Payment Links page
         businessName = await paymentLinksPage.grabBusinessName();
         await paymentLinksPage.switchToPaymentLinks();
         await paymentLinksPage.page.waitForLoadState('domcontentloaded');
         // create a new Payment Link
-        await paymentLinksPage.createPaymentLink(Description, 'USD', Amount, faker.string.numeric(6), faker.person.jobDescriptor(), 'https://pay.100pay.co');
+        await paymentLinksPage.createPaymentLink(testData.Description, 'USD', testData.Amount, faker.string.numeric(6), faker.person.jobDescriptor(), 'https://pay.100pay.co');
         const networkResponse = paymentLinksPage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/pay/payment_page' && response.request().method()==='POST');
         await paymentLinksPage.CreateLinkBtn.click();
         const response = await networkResponse;
@@ -180,13 +180,13 @@ test.describe(() => {
 
 });
 
-test('@POS - Verify that successfully generated payment links are recorded accurately', async ({paymentLinksPage}) => {
+test('@POS - Verify that successfully generated payment links are recorded accurately', async ({testData, paymentLinksPage}) => {
     await paymentLinksPage.page.goto(url, {waitUntil: 'domcontentloaded'});
     // navigate to Payment Links page
     await paymentLinksPage.switchToPaymentLinks();
     await paymentLinksPage.page.waitForLoadState('domcontentloaded');
     // create a new Payment Link
-    await paymentLinksPage.createPaymentLink(Description, 'USD', Amount, faker.string.numeric(6), faker.person.jobDescriptor(), 'https://pay.100pay.co');
+    await paymentLinksPage.createPaymentLink(testData.linkName, 'USD', testData.Amount, faker.string.numeric(6), testData.Description, 'https://pay.100pay.co');
     const networkResponse = paymentLinksPage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/pay/payment_page' && response.request().method()==='POST');
     await paymentLinksPage.CreateLinkBtn.click();
     const response = await networkResponse;
@@ -194,19 +194,19 @@ test('@POS - Verify that successfully generated payment links are recorded accur
     await paymentLinksPage.popupWindow.getByRole('button', { name: 'Cancel' }).click();
     expect(await paymentLinksPage.NumOfPaymentLinks()).toBeGreaterThanOrEqual(1);
     const {name, amount, date} = await paymentLinksPage.latestPaymentLink();
-    expect.soft(name).toBe(Description);
-    expect.soft(amount).toContain(paymentLinksPage.formatAmt(Amount));
+    expect.soft(name).toBe(testData.Description);
+    expect.soft(amount).toContain(paymentLinksPage.formatAmt(testData.Amount));
     expect.soft(date).toBe(CurrentDate());
 });
 
 
-test('@POS - Verify that bank name is visible, upon adding Account details', async ({bankAcctsPage}) => {
+test('@POS - Verify that bank name is visible, upon adding Account details', async ({testData, bankAcctsPage}) => {
     await bankAcctsPage.page.goto(url, {waitUntil: 'domcontentloaded'});
     // navigate to Bank Accounts page
     await bankAcctsPage.switchToBankAccounts();
     await bankAcctsPage.page.waitForLoadState('domcontentloaded');
     // add a new Bank Account
-    await bankAcctsPage.enterBankDetails('PalmPay', 8132198222);
+    await bankAcctsPage.enterBankDetails(testData.bankName, testData.acctNum);
     const networkResponse = bankAcctsPage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/user/validate-account-number' && response.request().method()==='POST');
     await bankAcctsPage.VerifyBankBtn.click();
     const response = await networkResponse;
@@ -217,13 +217,13 @@ test('@POS - Verify that bank name is visible, upon adding Account details', asy
 });
 
 
-test('@POS - Verify that a Bank account can be added successfully', async ({bankAcctsPage}) => {
+test('@POS - Verify that a Bank account can be added successfully', async ({testData, bankAcctsPage}) => {
     await bankAcctsPage.page.goto(url, {waitUntil: 'domcontentloaded'});
     // navigate to Bank Accounts page
     await bankAcctsPage.switchToBankAccounts();
     await bankAcctsPage.page.waitForLoadState('domcontentloaded');
     // add a new Bank Account
-    await bankAcctsPage.enterBankDetails('PalmPay', 8132198222);
+    await bankAcctsPage.enterBankDetails(testData.bankName, testData.acctNum);
     const networkResponse = bankAcctsPage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/user/validate-account-number' && response.request().method()==='POST');
     await bankAcctsPage.VerifyBankBtn.click();
     const response = await networkResponse;
@@ -234,19 +234,19 @@ test('@POS - Verify that a Bank account can be added successfully', async ({bank
     await bankAcctsPage.AddBankBtn.click();
     await bankAcctsPage.page.waitForLoadState('domcontentloaded');
     await expect(bankAcctsPage.popupWindow).toBeHidden({timeout: 10000});
-    const status = await bankAcctsPage.isAcctSaved(8132198222, 'PalmPay');
+    const status = await bankAcctsPage.isAcctSaved(testData.acctNum, testData.bankName);
     expect(status).toBeTruthy();
     expect(await bankAcctsPage.NumOfBankAccts()).toBe(1);
 });
 
 
-test('@POS - Verify that Instant Payout can be enabled on a bank account', async ({bankAcctsPage}) => {
+test('@POS - Verify that Instant Payout can be enabled on a bank account', async ({testData, bankAcctsPage}) => {
     await bankAcctsPage.page.goto(url, {waitUntil: 'domcontentloaded'});
     // navigate to Bank Accounts page
     await bankAcctsPage.switchToBankAccounts();
     await bankAcctsPage.page.waitForLoadState('domcontentloaded');
     // add a new Bank Account
-    await bankAcctsPage.enterBankDetails('PalmPay', 8132198222);
+    await bankAcctsPage.enterBankDetails(testData.bankName, testData.acctNum);
     const networkResponse = bankAcctsPage.page.waitForResponse(response => response.url()==='https://api.100pay.co/api/v1/user/validate-account-number' && response.request().method()==='POST');
     await bankAcctsPage.VerifyBankBtn.click();
     const response = await networkResponse;
@@ -257,10 +257,10 @@ test('@POS - Verify that Instant Payout can be enabled on a bank account', async
     await bankAcctsPage.AddBankBtn.click();
     await bankAcctsPage.page.waitForLoadState('domcontentloaded');
     await expect(bankAcctsPage.popupWindow).toBeHidden({timeout: 10000});
-    const status = await bankAcctsPage.isAcctSaved(8132198222, 'PalmPay');
+    const status = await bankAcctsPage.isAcctSaved(testData.acctNum, testData.bankName);
     expect(status).toBeTruthy();
     // verify that instant payout has been toggled
-    await bankAcctsPage.enableInstantPayout(8132198222, 'PalmPay');
+    await bankAcctsPage.enableInstantPayout(testData.acctNum, testData.bankName);
     // verify that newly added bank account has been enabled for instant payout
     await expect(bankAcctsPage.AcctRows.first().locator('td').first().locator('svg')).toBeVisible();
 });

@@ -9,13 +9,26 @@ import { PaymentLinksPage } from './pages/payment_links';
 import { TransactionsPage } from './pages/transactions';
 import { HomePage } from './pages/homepage-assets';
 
-type MyFixtures = {
-    homepage: HomePage,
-    signupPage: SignupPage,
-    InvoicePage: CreateInvoicePage,
-    paymentLinksPage: PaymentLinksPage,
-    bankAcctsPage: BankAccountsPage,
-    transactionPage: TransactionsPage
+interface TestData {
+    clientName: string;
+    clientID: string;
+    clientMobile: string;
+    clientMail: string;
+    Description: string;
+    Amount: number;
+    linkName: string;
+    bankName: string;
+    acctNum: number;
+}
+
+interface MyFixtures {
+    testData: TestData;
+    homepage: HomePage;
+    signupPage: SignupPage;
+    InvoicePage: CreateInvoicePage;
+    paymentLinksPage: PaymentLinksPage;
+    bankAcctsPage: BankAccountsPage;
+    transactionPage: TransactionsPage;
 };
 
 export * from '@playwright/test';
@@ -38,6 +51,19 @@ export const test = defaultTest.extend<MyFixtures, { workerStorageState: string 
     },
     transactionPage: async ({ page }, use) => {
         await use(new TransactionsPage(page));
+    },
+
+    // Define Test data for each test
+    testData: {
+        clientName: faker.person.fullName(), 
+        clientID: faker.string.numeric(6), 
+        clientMobile: '080'+faker.string.numeric(8), 
+        clientMail: faker.internet.email({provider: 'gmail.com'}), 
+        Description: faker.commerce.productName(), 
+        Amount: faker.number.int({min: 500, max: 10000}),
+        linkName: faker.commerce.productName(),
+        bankName: 'PalmPay',
+        acctNum: 8132198222
     },
 
     // Use the same storage state for all tests in this worker.
