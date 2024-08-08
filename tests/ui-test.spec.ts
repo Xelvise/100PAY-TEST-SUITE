@@ -1,13 +1,10 @@
 // test function was extended to include custom fixtures and a storage state for each worker. 
 // The storage state ensures the browser context of each & every worker is populated with an already authenticated session state 
 
-import fs from 'fs';
-import path from 'path';
 import { test, expect } from '../src/ui-auth-fixtures';
 import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../src/utils';
 import { faker } from '@faker-js/faker';
 
-const folderPath = path.join(__dirname, 'tests', 'ui-test.spec.ts-snapshots');
 const url = 'https://dashboard.100pay.co';
 test.describe.configure({ retries: 1 });
 
@@ -268,19 +265,16 @@ test('@POS - Verify that Instant Payout can be enabled on a bank account', async
 
 test('@POS - Verify that User can switch between Light and Dark themes', async ({homepage}) => {
     await homepage.page.goto(url, {waitUntil: 'domcontentloaded'});
-    if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true })
-    };
-    await homepage.navbar.screenshot({path: 'ui-test.spec.ts-snapshots/light-theme-chromium-linux.png'});
+    await homepage.page.waitForTimeout(1500);
+    await homepage.navbar.screenshot({path: 'tests/ui-test.spec.ts-snapshots/light-theme-chromium-linux.png'});
     // switch to Dark theme
-    // await homepage.SwitchTheme('Dark Mode');
     await homepage.crescentIcon.click();
     await homepage.page.waitForLoadState('domcontentloaded');
+    await homepage.page.waitForTimeout(1000);
     expect.soft(await homepage.navbar.screenshot()).not.toMatchSnapshot('light-theme.png');
     // switch to Light theme
-    // await homepage.SwitchTheme('Light Mode');
     await homepage.crescentIcon.click();
     await homepage.page.waitForLoadState('domcontentloaded');
-    await homepage.page.waitForTimeout(1500);
+    await homepage.page.waitForTimeout(1000);
     expect.soft(await homepage.navbar.screenshot()).toMatchSnapshot('light-theme.png');
 });
