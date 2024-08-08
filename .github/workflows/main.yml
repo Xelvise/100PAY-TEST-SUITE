@@ -1,3 +1,5 @@
+# The workflow file is pretty straightforward. It checks out the code, installs the dependencies, installs the Playwright browsers, runs the tests, and uploads the test report as an artifact.
+
 name: Playwright Tests
 on:
   push:
@@ -25,3 +27,4 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
