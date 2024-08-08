@@ -51,8 +51,8 @@ export class TransactionsPage extends HomePage {
         const receiptDetails: { [key: string]: string } = {};
         const Trxs = await this.TrxRows.all();
         for (const row of Trxs) {
-            const TrxCells = await row.locator('td').all();
-            const name = await TrxCells[0].innerText(), amt = await TrxCells[1].innerText(), date = await TrxCells[4].innerText(), status = await TrxCells[5].innerText();
+            const entries = await row.locator('td').all();
+            const name = await entries[0].innerText(), amt = await entries[1].innerText(), date = await entries[4].innerText(), status = await entries[5].innerText();
             if (name===clientName && amt===this.formatAmt(amount)) {
                 receiptDetails['name'] = name;
                 receiptDetails['amount'] = amt;
@@ -72,8 +72,8 @@ export class TransactionsPage extends HomePage {
     async downloadReceipt(clientName:string, amount:number) {
         const Trxs = await this.TrxRows.all();
         for (const row of Trxs) {
-            const TrxCells = await row.locator('td').all();
-            const name = await TrxCells[0].innerText(), amt = (await TrxCells[1].allInnerTexts())[1];
+            const entries = await row.locator('td').all();
+            const name = await entries[0].innerText(), amt = (await entries[1].allInnerTexts())[1];
             if (name===clientName && amt===this.formatAmt(amount)) {
                 await row.click();
                 break;

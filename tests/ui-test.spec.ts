@@ -132,8 +132,8 @@ test('@POS - Verify that successfully sent Invoice is accurately shown on Transa
     // navigate to Transactions page
     await InvoicePage.switchToTransactions();
     await transactionPage.page.waitForLoadState('domcontentloaded');
-    // await transactionPage.page.pause();
-    await expect(transactionPage.TrxRows.first()).toBeVisible({timeout: 10000});
+    await transactionPage.page.waitForTimeout(3000);
+    await expect(transactionPage.TrxRows.first()).toBeVisible();
     const {name, amount, date, status} = await transactionPage.ViewTrxReceipt(testData.clientName, testData.Amount);
     expect.soft(name).toBe(testData.clientName);
     expect.soft(amount).toBe(transactionPage.formatAmt(testData.Amount));
