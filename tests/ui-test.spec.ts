@@ -6,7 +6,6 @@ import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../src/utils';
 import { faker } from '@faker-js/faker';
 
 const url = 'https://dashboard.100pay.co';
-test.describe.configure({ retries: 1 });
 
 test('@POS - Verify that invoice description is half populated with User entries, prior to saving', async ({testData, InvoicePage}) => {
     // navigate to create invoice page
