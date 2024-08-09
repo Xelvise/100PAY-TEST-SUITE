@@ -23,19 +23,19 @@ Failed tests are retried once to resolve flakiness, ensuring that the test resul
 
 - To execute all test cases in headless mode, run: 
 ```bash
-npm all-headless
+npm run all-headless
 ```
 - To execute all test cases in headed mode using a pre-installed Chromium browser, run: 
 ```bash
-npm all-headed-chromium
+npm run all-headed-chromium
 ```
 - To execute all test cases in headed mode using a pre-installed Firefox browser, run: 
 ```bash
-npm all-headed-firefox
+npm run all-headed-firefox
 ```
 - To execute all test cases in headed mode using a pre-installed WebKit browser, run: 
 ```bash
-npm all-headed-safari
+npm run all-headed-safari
 ```
 
 ## Running on CI Environment
