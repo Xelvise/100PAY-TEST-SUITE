@@ -38,7 +38,7 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: process.env.URL,
     ignoreHTTPSErrors: true,
-    headless: process.env.CI ? true : false,
+    headless: true,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
     permissions: ["clipboard-read"],

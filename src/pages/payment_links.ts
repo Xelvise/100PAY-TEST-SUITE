@@ -6,6 +6,7 @@ import { HomePage } from './homepage-assets';
  * @extends HomePage
  */
 export class PaymentLinksPage extends HomePage {
+    readonly linkRows: Locator;
     readonly CreateNewLinkBtn: Locator;
     readonly CancelBtn: Locator;
     readonly PaymentLinkNameField: Locator;
@@ -19,7 +20,7 @@ export class PaymentLinksPage extends HomePage {
 
     constructor(page: Page) {
         super(page);
-        // this.CreateNewLinkBtn = page.getByRole('button', { name: 'Create new link' });
+        this.linkRows = page.locator('div.w-full > div > div.flex > div > table.w-full > tbody > tr');
         this.CreateNewLinkBtn = page.locator('div[class="w-[157px]"] > a');
         this.CancelBtn = page.getByRole('button', { name: 'Cancel', exact: true });
         this.PaymentLinkNameField = page.getByPlaceholder('Enter a link name');
@@ -61,13 +62,14 @@ export class PaymentLinksPage extends HomePage {
      * @returns The number of Payment Links created by User
      */
     async NumOfPaymentLinks() {
-        const numOfRows = await this.page.locator('div.w-full > div > div.flex > div > table.w-full > tbody > tr').count();
+        const numOfRows = await this.linkRows.count();
         return numOfRows;
     };
 
     async latestPaymentLink() {
+        await expect(this.linkRows).toBeVisible();
         const content: { [key: string]: string } = {};
-        const latestRecord = this.page.locator('div.w-full > div > div.flex > div > table.w-full > tbody > tr').first();
+        const latestRecord = this.linkRows.first();
         const values = await latestRecord.locator('td').all();
         content['name'] = await values[0].innerText();
         content['amount'] = await values[1].innerText();

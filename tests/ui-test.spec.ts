@@ -190,7 +190,7 @@ test('@POS - Verify that successfully generated payment links are recorded accur
     await paymentLinksPage.popupWindow.getByRole('button', { name: 'Cancel' }).click();
     expect(await paymentLinksPage.NumOfPaymentLinks()).toBeGreaterThanOrEqual(1);
     const {name, amount, date} = await paymentLinksPage.latestPaymentLink();
-    expect.soft(name).toBe(testData.Description);
+    expect.soft(name).toBe(testData.linkName);
     expect.soft(amount).toContain(paymentLinksPage.formatAmt(testData.Amount));
     expect.soft(date).toBe(CurrentDate());
 });
