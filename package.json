@@ -7,7 +7,7 @@
     "all-headed-chromium": "npx playwright test --project chromium",
     "all-headed-firefox": "npx playwright test --project firefox",
     "all-headed-safari": "npx playwright test --project webkit",
-    "all-headless": "npx playwright test --headless --project chromium",
+    "all-headless": "npx playwright test --project chromium",
     "positive-tests-chromium": "npx playwright test --project chromium --grep @POS",
     "negative-tests-chromium": "npx playwright test --project chromium --grep @NEG"
   },
