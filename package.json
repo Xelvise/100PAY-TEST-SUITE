@@ -4,12 +4,12 @@
   "description": "Functional testing on 100pay",
   "main": "index.js",
   "scripts": {
-    "all-headed-chromium": "npx playwright test --headed --project chromium",
-    "all-headed-firefox": "npx playwright test --headed --project firefox",
-    "all-headed-safari": "npx playwright test --headed --project webkit",
-    "all-headless": "npx playwright test --project chromium",
-    "positive-tests-chromium": "npx playwright test --headed --project chromium --grep @POS",
-    "negative-tests-chromium": "npx playwright test --headed --project chromium --grep @NEG"
+    "all-headed-chromium": "npx playwright test --project chromium",
+    "all-headed-firefox": "npx playwright test --project firefox",
+    "all-headed-safari": "npx playwright test --project webkit",
+    "all-headless": "npx playwright test --headless --project chromium",
+    "positive-tests-chromium": "npx playwright test --project chromium --grep @POS",
+    "negative-tests-chromium": "npx playwright test --project chromium --grep @NEG"
   },
   "keywords": [],
   "author": "Elvis Gideon",

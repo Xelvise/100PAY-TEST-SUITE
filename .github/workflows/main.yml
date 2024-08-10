@@ -9,7 +9,7 @@ on:
     branches: [ main, master ]
 jobs:
   E2E-tests:
-    timeout-minutes: 60
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -18,9 +18,13 @@ jobs:
         node-version: 18
     - name: Install dependencies
       run: npm install
-    - name: Install Playwright Browsers
+    - name: Install Playwright and required browser
       run: npx playwright install --with-deps chromium
-    - name: Run Playwright tests on Chrome
+    - name: Print environment variables
+      run: printenv | sort
+    - name: Run Playwright tests on Chromium
+      env:
+        MAILSLURP_API_KEY: ${{secrets.MAILSLURP_API_KEY}}
       run: npm run all-headless
     - uses: actions/upload-artifact@v4
       if: always()
