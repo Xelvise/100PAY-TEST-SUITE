@@ -1,9 +1,12 @@
 // test function was extended to include custom fixtures and a storage state for each worker. 
 // The storage state ensures the browser context of each & every worker is populated with an already authenticated session state 
 
-import { test, expect } from '../src/ui-auth-fixtures';
-import { retrieveInvoiceURL, CurrentDate, mailslurp } from '../src/utils';
 import { faker } from '@faker-js/faker';
+import { test, expect } from '../src/ui-auth-fixtures';
+import { retrieveInvoiceURL, CurrentDate} from '../src/utils';
+import { MailSlurp } from 'mailslurp-client';
+import { config } from "dotenv";
+config({path: './.env'});   // load environment variables from .env file
 
 const url = 'https://dashboard.100pay.co';
 
@@ -85,6 +88,13 @@ test.describe.skip(() => {
 
     test('@POS - Verify that successfully sent Invoice gets delivered to Customer\'s pre-set email address', async ({testData, InvoicePage}) => {
         test.setTimeout(2.5*60*1000);
+
+        const apiKey = process.env.MAILSLURP_API_KEY;
+        if (!apiKey) {throw new Error("MAILSLURP_API_KEY is not defined")}
+        // create a new instance of MailSlurp
+        const mailslurp = new MailSlurp({apiKey});
+        
+        // create a new inbox
         const inbox = await mailslurp.inboxController.createInboxWithDefaults();
         // navigate to create invoice page
         await InvoicePage.page.goto(url, {waitUntil: 'domcontentloaded'});
@@ -101,7 +111,7 @@ test.describe.skip(() => {
         const response = await networkResponse;
         expect(response.status()).toBe(200);
         // retrieve the invoice URL from the client's email
-        invoiceURL = await retrieveInvoiceURL(inbox.id);
+        invoiceURL = await retrieveInvoiceURL(mailslurp, inbox.id);
         expect(invoiceURL).toContain('https://pay.100pay.co/pay/');
     });
 
